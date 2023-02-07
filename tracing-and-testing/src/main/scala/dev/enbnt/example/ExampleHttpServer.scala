@@ -9,6 +9,8 @@ class ExampleHttpServer extends HttpServer {
 
     // configure our router with our controller
     override protected def configureHttp(router: HttpRouter): Unit = {
-      router.add[ExampleController]
+      router
+        .add[ExampleController]
+        .add[LifecycleController]
     }
 }

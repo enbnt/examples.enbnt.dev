@@ -29,6 +29,7 @@ scala_test(
         "@maven//:com_twitter_util_slf4j_api_2_13",
         "@maven//:com_twitter_util_slf4j_jul_bridge_2_13",
         "@maven//:com_twitter_twitter_server_2_13",
+        "@maven//:jakarta_validation_jakarta_validation_api",
         "@maven//:org_slf4j_slf4j_api",
         "@maven//:org_slf4j_slf4j_nop",
         "@testJars//:com_twitter_finatra_http_server_2_13_tests",

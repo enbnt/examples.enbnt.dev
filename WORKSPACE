@@ -159,6 +159,7 @@ NETTY_TCNATIVE_OVERRIDE_TARGETS = {
 maven_install(
     artifacts = [
         "junit:junit:4.12",
+        "jakarta.validation:jakarta.validation-api:3.0.0",
         "com.google.inject:guice:4.2.3",
         "org.slf4j:slf4j-api:1.7.30",
         "org.slf4j:slf4j-nop:1.7.30",
