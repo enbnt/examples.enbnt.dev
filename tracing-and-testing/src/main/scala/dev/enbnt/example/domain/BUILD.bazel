@@ -3,9 +3,9 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
 scala_library(
     name = "domain",
     srcs = glob(["*.scala"]),
+    visibility = ["//visibility:public"],
     deps = [
         "@maven//:com_twitter_finatra_http_annotations_2_13",
         "@maven//:jakarta_validation_jakarta_validation_api",
     ],
-    visibility = ["//visibility:public"],
 )
