@@ -14,25 +14,25 @@ class ExampleHttpServerFeatureTest extends FeatureTest {
 
   test("ExampleServer#scores correctly with 'name' query param specified") {
     server.httpGet(
-      "/score?name=jdoe", 
+      "/score?name=enbnt", 
       andExpect = Ok, 
-      withJsonBody = """{"name": "jdoe", "score": 4}"""
+      withJsonBody = """{"name": "enbnt", "score": 5}"""
     )
 
     // verify our trace annotation is present
-    server.inMemoryTracer.binaryAnnotations("example.name", "jdoe")
+    server.inMemoryTracer.binaryAnnotations("example.name", "enbnt")
     server.inMemoryTracer.binaryAnnotations.get("example.multiplier") shouldBe None
   }
 
   test("ExampleServer#scores correctly with 'name' and 'multiplier' query param specified") {
     server.httpGet(
-      "/score?name=jdoe&multiplier=5", 
+      "/score?name=ian&multiplier=5", 
       andExpect = Ok, 
-      withJsonBody = """{"name": "jdoe", "score": 20}"""
+      withJsonBody = """{"name": "ian", "score": 15}"""
     )
 
     // verify our trace annotation is present
-    server.inMemoryTracer.binaryAnnotations("example.name", "jdoe")
+    server.inMemoryTracer.binaryAnnotations("example.name", "ian")
     server.inMemoryTracer.binaryAnnotations("example.multiplier", 5)
   }
 
