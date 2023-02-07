@@ -12,17 +12,22 @@ class LifecycleController extends Controller {
         // to trace data.
         val trace = Trace()
         trace.traceLocal("example.lifecycle.init") {
+          // initialize and prep for work
           trace.traceLocal("example.lifecycle.init.sub1") {
+            // sub-init1
           }
           trace.traceLocal("example.lifecycle.init.sub2") {
+            // sub-init2
           }
         }
         trace.traceLocal("example.lifecycle.process") {
+          // do the work
         }
         trace.traceLocal("example.lifecycle.end") {
+          // end and clean-up
         }
 
-        response.ok()
+        response.ok("complete")
     }
 
 }

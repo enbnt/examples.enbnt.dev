@@ -64,12 +64,15 @@ class ExampleHttpServerFeatureTest extends FeatureTest {
     server.httpPost(
       "/lifecycle", 
       postBody = "",
-      andExpect = Ok
+      andExpect = Ok,
+      withBody = "complete"
     )
     
-    // verify that no trace annotation is present
-    server.inMemoryTracer.binaryAnnotations.get("example.name") shouldBe None
-    server.inMemoryTracer.binaryAnnotations.get("example.multiplier") shouldBe None
+    server.inMemoryTracer.rpcs("example.lifecycle.init")
+    server.inMemoryTracer.rpcs("example.lifecycle.init.sub1")
+    server.inMemoryTracer.rpcs("example.lifecycle.init.sub2")
+    server.inMemoryTracer.rpcs("example.lifecycle.process")
+    server.inMemoryTracer.rpcs("example.lifecycle.end")
   }
 
 }
