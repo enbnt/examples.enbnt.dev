@@ -1,0 +1,22 @@
+# Scala Metals Integration
+.metals/
+.bloop/
+.ammonite/
+metals.sbt
+.scala-build/
+
+# macOS-specific excludes
+.DS_Store
+
+# Bazel
+*~
+bazel-*
+.bazelrc
+.idea
+.vscode
+# Eclipse
+.project
+.classpath
+.settings/
+# Maven
+target/

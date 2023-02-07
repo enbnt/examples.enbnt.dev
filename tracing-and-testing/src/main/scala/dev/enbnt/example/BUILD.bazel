@@ -1,0 +1,48 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_binary", "scala_library")
+
+scala_library(
+    name = "example",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "@maven//:com_google_inject_guice",
+        "@maven//:com_twitter_finatra_http_annotations_2_13",
+        "@maven//:com_twitter_finatra_http_core_2_13",
+        "@maven//:com_twitter_finatra_http_server_2_13",
+        "@maven//:com_twitter_finatra_jackson_2_13",
+        "@maven//:com_twitter_finagle_core_2_13",
+        "@maven//:com_twitter_finagle_base_http_2_13",
+        "@maven//:com_twitter_finagle_http_2_13",
+        "@maven//:com_twitter_finagle_netty4_http_2_13",
+        "@maven//:com_twitter_finagle_http2_2_13",
+        "@maven//:com_twitter_finagle_stats_core_2_13",
+        "@maven//:com_twitter_finagle_stats_2_13",
+        "@maven//:com_twitter_inject_app_2_13",
+        "@maven//:com_twitter_inject_core_2_13",
+        "@maven//:com_twitter_inject_server_2_13",
+        "@maven//:com_twitter_inject_utils_2_13",
+        "@maven//:com_twitter_inject_ports_2_13",
+        "@maven//:com_twitter_inject_logback_2_13",
+        "@maven//:com_twitter_util_app_2_13",
+        "@maven//:com_twitter_util_app_lifecycle_2_13",
+        "@maven//:com_twitter_util_core_2_13",
+        "@maven//:com_twitter_util_lint_2_13",
+        "@maven//:com_twitter_util_stats_2_13",
+        "@maven//:com_twitter_util_slf4j_api_2_13",
+        "@maven//:com_twitter_util_slf4j_jul_bridge_2_13",
+        "@maven//:com_twitter_twitter_server_2_13",
+        "@maven//:org_slf4j_slf4j_api",
+        "@maven//:org_slf4j_slf4j_nop",
+    ],
+    visibility = ["//visibility:public"],
+)
+
+scala_binary(
+    name = "bin",
+    srcs = [],
+    main_class = "dev.enbnt.example.ExampleHttpServerMain",
+    deps = [
+        ":example",
+        # "finatra/examples/http-server/scala/src/main/resources",
+        # "twitter-server/logback-classic/src/main/scala",
+    ],
+)
