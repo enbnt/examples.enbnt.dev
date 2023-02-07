@@ -1,0 +1,57 @@
+NETTY_VERSION = "4.1.78.Final"
+NETTY_TCNATIVE_VERSION = "2.0.53.Final"
+
+load("@rules_java//java:defs.bzl", "java_import")
+
+java_import(
+    name = "io_netty_netty_tcnative_boringssl_static_osx_x86_64",
+    jars = ["@netty_tcnative_boringssl_static_linux_x86_64//jar:downloaded.jar"],
+    tags = ["maven_coordinates=io.netty:netty-tcnative-boringssl-static:jar:osx-x86_64:{}".format(NETTY_TCNATIVE_VERSION)],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "io_netty_netty_tcnative_boringssl_static_osx_aarch_64",
+    jars = ["@netty_tcnative_boringssl_static_osx_aarch_64//jar:downloaded.jar"],
+    tags = ["maven_coordinates=io.netty:netty-tcnative-boringssl-static:jar:osx-aarch_64:{}".format(NETTY_TCNATIVE_VERSION)],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "io_netty_netty_tcnative_boringssl_static_linux_x86_64",
+    jars = ["@netty_tcnative_boringssl_static_linux_x86_64//jar:downloaded.jar"],
+    tags = ["maven_coordinates=io.netty:netty-tcnative-boringssl-static:jar:linux-x86_64:{}".format(NETTY_TCNATIVE_VERSION)],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "io_netty_netty_tcnative_boringssl_static_linux_aarch_64",
+    jars = ["@netty_tcnative_boringssl_static_linux_aarch_64//jar:downloaded.jar"],
+    tags = ["maven_coordinates=io.netty:netty-tcnative-boringssl-static:jar:linux-aarch_64:{}".format(NETTY_TCNATIVE_VERSION)],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "io_netty_netty_tcnative_boringssl_static_windows_x86_64",
+    jars = ["@netty_tcnative_boringssl_static_windows_x86_64//jar:downloaded.jar"],
+    tags = ["maven_coordinates=io.netty:netty-tcnative-boringssl-static:jar:windows-x86_64:{}".format(NETTY_TCNATIVE_VERSION)],
+    visibility = ["//visibility:public"],
+)
+
+java_import(
+    name = "io_netty_netty_tcnative_boringssl_static",
+    jars = ["@netty_tcnative_boringssl_static//jar:downloaded.jar"],
+    tags = [
+        "maven_coordinates=io.netty:netty-tcnative-boringssl-static:{}".format(NETTY_TCNATIVE_VERSION),
+        "maven_url=...",
+    ],
+    deps = [
+        "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_linux_aarch_64",
+        "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_linux_x86_64",
+        "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_osx_aarch_64",
+        "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_osx_x86_64",
+        "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_windows_x86_64",
+        "@maven//:io_netty_netty_tcnative_classes",
+    ],
+    visibility = ["//visibility:public"],
+)
