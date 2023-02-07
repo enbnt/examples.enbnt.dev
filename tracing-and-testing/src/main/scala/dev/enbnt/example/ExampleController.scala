@@ -1,26 +1,42 @@
 package dev.enbnt.example
 
 import com.twitter.finagle.tracing.Trace
+import com.twitter.finagle.http.Request
 import com.twitter.finatra.http.Controller
+import dev.enbnt.example.domain.ScoreRequest
+import dev.enbnt.example.domain.ScoreResponse
+
 
 class ExampleController extends Controller {
     
-    get("/") { request: ExampleRequest =>
+    get("/score") { request: ScoreRequest =>
         
-        val score = request match {
-            case ExampleRequest(Some(name)) =>
-                // retrieve this request's active trace context and
+        val ScoreRequest(optName, optMultiplier) = request
+
+        val score: Int = optName match {
+            case Some(name) =>
+                                // retrieve this request's active trace context and
                 // annotate some application specific data to the trace
                 val trace = Trace()
-                trace.recordBinary("name", request.name)
+                if (trace.isActivelyTracing) {
+                  trace.recordBinary("example.name", name)
+                }
 
-                // calculate a score for the name
-                name.length * 2
-            case _ =>
+                val mult = optMultiplier match {
+                    case Some(m) => 
+                        trace.recordBinary("example.multiplier", m)
+                        m
+                    case _ => 1
+                }
+
+                name.length * mult
+
+            case _ => 
                 -1
         }
 
         // return the response
-        ExampleResponse(request.name, score)
+        ScoreResponse(optName, score)
     }
+
 }

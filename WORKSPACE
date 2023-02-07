@@ -128,15 +128,16 @@ load("@rules_jvm_external//:setup.bzl", "rules_jvm_external_setup")
 
 rules_jvm_external_setup()
 
-
 NETTY_TCNATIVE_VERSION = "2.0.53.Final"
 
 load("//third_party/netty:deps_workaround.bzl", "fetch_netty_tcnative_jars")
+
 fetch_netty_tcnative_jars(NETTY_TCNATIVE_VERSION)
 
 load("@rules_jvm_external//:defs.bzl", "maven_install")
 
 twitter_scala_version = "2.13"
+
 twitter_release_version = "22.12.0"
 
 TWITTER_LIBRARY_ARTIFACTS = [
@@ -159,15 +160,16 @@ NETTY_TCNATIVE_OVERRIDE_TARGETS = {
 maven_install(
     artifacts = [
         "junit:junit:4.12",
+        "jakarta.validation:jakarta.validation-api:3.0.0",
         "com.google.inject:guice:4.2.3",
         "org.slf4j:slf4j-api:1.7.30",
         "org.slf4j:slf4j-nop:1.7.30",
         "ch.qos.logback:logback-classic:1.2.11",
     ] + TWITTER_LIBRARY_ARTIFACTS,
+    override_targets = {} | NETTY_TCNATIVE_OVERRIDE_TARGETS,
     repositories = [
         "https://repo1.maven.org/maven2/",
     ],
-    override_targets = {} | NETTY_TCNATIVE_OVERRIDE_TARGETS,
 )
 
 load("@rules_jvm_external//:specs.bzl", "maven")
@@ -177,49 +179,49 @@ maven_install(
     name = "testJars",
     artifacts = [
         maven.artifact(
-            group = "com.twitter",
-            artifact = "finatra-http-server_%s" % (twitter_scala_version),
-            packaging = "jar",
-            classifier = "tests",
-            version = twitter_release_version,
             testonly = True,
+            artifact = "finatra-http-server_%s" % twitter_scala_version,
+            classifier = "tests",
+            group = "com.twitter",
+            packaging = "jar",
+            version = twitter_release_version,
         ),
         maven.artifact(
-            group = "com.twitter",
-            artifact = "inject-server_%s" % (twitter_scala_version),
-            packaging = "jar",
-            classifier = "tests",
-            version = twitter_release_version,
             testonly = True,
+            artifact = "inject-server_%s" % twitter_scala_version,
+            classifier = "tests",
+            group = "com.twitter",
+            packaging = "jar",
+            version = twitter_release_version,
         ),
         maven.artifact(
-            group = "com.twitter",
-            artifact = "inject-app_%s" % (twitter_scala_version),
-            packaging = "jar",
-            classifier = "tests",
-            version = twitter_release_version,
             testonly = True,
+            artifact = "inject-app_%s" % twitter_scala_version,
+            classifier = "tests",
+            group = "com.twitter",
+            packaging = "jar",
+            version = twitter_release_version,
         ),
         maven.artifact(
-            group = "com.twitter",
-            artifact = "inject-core_%s" % (twitter_scala_version),
-            packaging = "jar",
-            classifier = "tests",
-            version = twitter_release_version,
             testonly = True,
+            artifact = "inject-core_%s" % twitter_scala_version,
+            classifier = "tests",
+            group = "com.twitter",
+            packaging = "jar",
+            version = twitter_release_version,
         ),
         maven.artifact(
-            group = "com.twitter",
-            artifact = "inject-modules_%s" % (twitter_scala_version),
-            packaging = "jar",
-            classifier = "tests",
-            version = twitter_release_version,
             testonly = True,
+            artifact = "inject-modules_%s" % twitter_scala_version,
+            classifier = "tests",
+            group = "com.twitter",
+            packaging = "jar",
+            version = twitter_release_version,
         ),
     ],
     fetch_sources = True,
+    override_targets = {} | NETTY_TCNATIVE_OVERRIDE_TARGETS,
     repositories = [
         "https://repo1.maven.org/maven2",
     ],
-    override_targets = {} | NETTY_TCNATIVE_OVERRIDE_TARGETS,
 )

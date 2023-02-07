@@ -1,4 +1,5 @@
 NETTY_VERSION = "4.1.78.Final"
+
 NETTY_TCNATIVE_VERSION = "2.0.53.Final"
 
 load("@rules_java//java:defs.bzl", "java_import")
@@ -45,6 +46,7 @@ java_import(
         "maven_coordinates=io.netty:netty-tcnative-boringssl-static:{}".format(NETTY_TCNATIVE_VERSION),
         "maven_url=...",
     ],
+    visibility = ["//visibility:public"],
     deps = [
         "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_linux_aarch_64",
         "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_linux_x86_64",
@@ -53,5 +55,4 @@ java_import(
         "@//third_party/netty:io_netty_netty_tcnative_boringssl_static_windows_x86_64",
         "@maven//:io_netty_netty_tcnative_classes",
     ],
-    visibility = ["//visibility:public"],
 )
