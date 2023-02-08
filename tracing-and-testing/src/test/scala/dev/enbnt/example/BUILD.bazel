@@ -31,7 +31,6 @@ scala_test(
         "@maven//:com_twitter_util_stats_2_13",
         "@maven//:jakarta_validation_jakarta_validation_api",
         "@maven//:org_slf4j_slf4j_api",
-        "@maven//:org_slf4j_slf4j_nop",
         "@testJars//:com_twitter_finatra_http_server_2_13_tests",
         "@testJars//:com_twitter_inject_app_2_13_tests",
         "@testJars//:com_twitter_inject_core_2_13_tests",

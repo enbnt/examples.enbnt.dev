@@ -6,6 +6,6 @@ import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Max
 
 final case class ScoreRequest(
-    @QueryParam name: Option[String],
-    @QueryParam @Min(1) @Max(10) multiplier: Option[Int]
+  @QueryParam name: Option[String],
+  @QueryParam @Min(1) @Max(10) multiplier: Option[Int]
 )
