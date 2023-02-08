@@ -8,6 +8,9 @@ metals.sbt
 # macOS-specific excludes
 .DS_Store
 
+# IntelliJ
+.ijwb
+
 # Bazel
 *~
 bazel-*

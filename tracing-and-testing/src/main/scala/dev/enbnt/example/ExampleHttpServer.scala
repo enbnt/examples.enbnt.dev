@@ -16,17 +16,17 @@ object ExampleHttpServerMain extends ExampleHttpServer
 
 class ExampleHttpServer extends HttpServer {
 
-    // configure our router with our controller
-    override protected def configureHttp(router: HttpRouter): Unit = {
-      router
-        .filter[LoggingMDCFilter[Request, Response]]
-        .filter[TraceIdMDCFilter[Request, Response]]
-        .filter[StatsFilter[Request]]
-        .filter[AccessLoggingFilter[Request]]
-        .filter[HttpResponseFilter[Request]]
-        .filter[ExceptionMappingFilter[Request]]
-        .filter[HttpNackFilter[Request]]
-        .add[ExampleController]
-        .add[LifecycleController]
-    }
+  // configure our router with our controller
+  override protected def configureHttp(router: HttpRouter): Unit = {
+    router
+      .filter[LoggingMDCFilter[Request, Response]]
+      .filter[TraceIdMDCFilter[Request, Response]]
+      .filter[StatsFilter[Request]]
+      .filter[AccessLoggingFilter[Request]]
+      .filter[HttpResponseFilter[Request]]
+      .filter[ExceptionMappingFilter[Request]]
+      .filter[HttpNackFilter[Request]]
+      .add[ExampleController]
+      .add[LifecycleController]
+  }
 }
