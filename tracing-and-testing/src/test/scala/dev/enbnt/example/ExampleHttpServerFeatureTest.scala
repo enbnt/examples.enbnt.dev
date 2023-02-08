@@ -3,6 +3,7 @@ package dev.enbnt.example
 import com.twitter.finagle.http.Status._
 import com.twitter.inject.server.FeatureTest
 import com.twitter.finatra.http.EmbeddedHttpServer
+import com.twitter.inject.InMemoryTracer
 
 class ExampleHttpServerFeatureTest extends FeatureTest {
   
@@ -73,6 +74,14 @@ class ExampleHttpServerFeatureTest extends FeatureTest {
     server.inMemoryTracer.rpcs("example.lifecycle.init.sub2")
     server.inMemoryTracer.rpcs("example.lifecycle.process")
     server.inMemoryTracer.rpcs("example.lifecycle.end")
+
+    // If we load up this output in the Zipkin UI, we will find that
+    // there's actually a bug! The timestamp for the SERVER "POST"
+    // event isn't properly set and it mangles the overall trace duration.
+    // This likely doesn't happen in practice with Finagle's ZipkinTracer, but it
+    // shows that there are odd edge cases where your trace data will not produce
+    // the data that you expect.
+    server.inMemoryTracer.print(InMemoryTracer.ZipkinJsonFormatter)
   }
 
 }
