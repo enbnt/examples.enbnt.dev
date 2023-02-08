@@ -14,7 +14,7 @@ welcome!
 
 ## Testing
 
-`$ bazel test //tracing-and-testing/...`
+`$ bazel test --test_output=errors //tracing-and-testing/...`
 
 ## Run the Server
 
