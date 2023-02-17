@@ -1,0 +1,11 @@
+scala_test(
+    name = "timeseries",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "//timeseries/src/main/scala/dev/enbnt/timeseries",
+        "@maven//:com_twitter_util_core_2_13",
+        "@maven//:com_twitter_util_slf4j_api_2_13",
+        "@maven//:org_slf4j_slf4j_api",
+        "@testJars//:com_twitter_inject_core_2_13_tests",
+    ],
+)
