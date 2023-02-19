@@ -3,6 +3,8 @@ package dev.enbnt.timeseries
 import com.twitter.util.Duration
 import com.twitter.util.Time
 
+import scala.collection.Searching
+
 object Timeseries {
 
   def apply(interval: Duration, data: IndexedSeq[DataPoint]): Timeseries =
@@ -63,8 +65,13 @@ private[timeseries] final class SparseTimeseries(
   override def apply(i: Int): DataPoint = DataPoint(times(i), values(i))
   override def length: Int = values.length
   override def toString(): String = s"Sparse[${super.toString()}]"
-  override private[timeseries] def timeIndex(time: Time): Int =
-    times.search(time).insertionPoint
+  override private[timeseries] def timeIndex(time: Time): Int = {
+    times.search(time) match {
+      case Searching.Found(idx)                     => idx
+      case Searching.InsertionPoint(idx) if idx > 0 => idx
+      case _ => -1 // special case at 0 index
+    }
+  }
 }
 
 private[timeseries] final class DenseTimeseries(

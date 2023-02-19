@@ -100,6 +100,63 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
         assert(t1.end == start + 3.seconds)
 
       }
+    }
+
+    test(s"$label#range not within time series") {
+      Time.withCurrentTimeFrozen { _ =>
+        val interval = 1.second
+        val start = Time.now.floor(interval) - 5.seconds
+
+        val t0: Timeseries = ts(
+          TimeseriesBehaviors.Input(
+            interval,
+            Array(
+              DataPoint(start, 1),
+              DataPoint(start + 1.second, 2),
+              DataPoint(start + 2.seconds, 3),
+              DataPoint(start + 3.seconds, 4),
+              DataPoint(start + 4.seconds, 5)
+            )
+          )
+        )
+        val t1: Timeseries = t0.range(start - 5.seconds, start - 3.seconds)
+
+        assert(
+          t1 == EmptyTimeseries
+        )
+
+        val t2: Timeseries = t0.range(start + 5.seconds, start + 8.seconds)
+
+        assert(
+          t2 == EmptyTimeseries
+        )
+      }
+
+    }
+
+    test(s"$label#range returns single value") {
+      Time.withCurrentTimeFrozen { _ =>
+        val interval = 1.second
+        val start = Time.now.floor(interval) - 5.seconds
+
+        val t0: Timeseries = ts(
+          TimeseriesBehaviors.Input(
+            interval,
+            Array(
+              DataPoint(start, 1),
+              DataPoint(start + 1.second, 2),
+              DataPoint(start + 2.seconds, 3),
+              DataPoint(start + 3.seconds, 4),
+              DataPoint(start + 4.seconds, 5)
+            )
+          )
+        )
+        val t1: Timeseries = t0.range(start + 3.seconds, start + 3.seconds)
+
+        assert(
+          t1 == Timeseries(interval, Array(DataPoint(start + 3.seconds, 4)))
+        )
+      }
 
     }
 
