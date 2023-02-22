@@ -5,9 +5,10 @@ import TimeseriesOps._
 
 sealed trait TimeseriesStore {
 
-  /** Retrieve [[Timeseries]] values between [[begin]] and [[end]] time
-    * (inclusive)
-    */
+  /** 
+   * Retrieve [[Timeseries]] values between [[begin]] and [[end]] time
+   * (inclusive)
+   */
   def get(label: String, begin: Time, end: Time): Option[Timeseries]
 
 }
