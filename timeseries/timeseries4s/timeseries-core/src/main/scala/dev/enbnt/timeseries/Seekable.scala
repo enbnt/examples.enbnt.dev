@@ -4,6 +4,6 @@ import com.twitter.util.Time
 
 trait Seekable { self: TimeSeriesLike =>
 
-  protected def timeIndex(time: Time): Int
+  def timeIndex(time: Time): Int
 
 }

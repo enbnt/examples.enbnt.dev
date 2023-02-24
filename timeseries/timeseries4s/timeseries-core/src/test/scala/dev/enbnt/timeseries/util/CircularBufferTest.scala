@@ -68,13 +68,32 @@ class CircularBufferTest extends Test {
   test("CircularBuffer#read offset behaves as expected") {
     val rb = new CircularBuffer[Int](4)
     rb.write(1, 2, 3, 4)
+    assert(rb.size == 4)
+    assert(rb.nonEmpty)
     assert(rb.read(2) == 3)
     assert(rb.read() == 1)
     assert(rb.read(2) == 4)
     assert(rb.read() == 2)
-    assert(rb.read(2) == 1)
+    assert(rb.size == 2)
+    intercept[IllegalStateException] {
+      rb.read(2)
+    }
+
+    assert(rb.size == 2)
+    assert(rb.read(0) == 3)
+    assert(rb.read(1) == 4)
+
     assert(rb.read() == 3)
-    assert(rb.read(2) == 2)
+
+    intercept[IllegalStateException] {
+      rb.read(2)
+    }
+
+    assert(rb.size == 1)
+    intercept[IllegalStateException] {
+      rb.read(1)
+    }
+
   }
 
   test("CircularBuffer#writeIndex") {

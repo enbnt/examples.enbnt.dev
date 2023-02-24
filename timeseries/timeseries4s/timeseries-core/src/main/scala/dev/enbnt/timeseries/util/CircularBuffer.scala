@@ -14,19 +14,23 @@ import scala.reflect.ClassTag
  * @note
  *   This implementation is <b>NOT</b> thread safe.
  */
-private[timeseries] class CircularBuffer[T: ClassTag](size: Int)
+private[timeseries] class CircularBuffer[T: ClassTag](maxSize: Int)
     extends Iterable[T] {
 
-  private[this] val buffer: Array[T] = new Array[T](size)
+  private[this] val buffer: Array[T] = new Array[T](maxSize)
   private[this] var readIdx: Int = 0
   private[this] var writeIdx: Int = 0
-  private[this] var overflow: Boolean = false
+  private[this] var count = 0
+
+  override def isEmpty: Boolean = count == 0
+  override def size: Int = count
 
   /** @return */
   def read(): T = {
     verifyOverflow(readIdx)
     val v = buffer(readIdx)
     readIdx = incr(readIdx)
+    count -= 1
     v
   }
 
@@ -40,8 +44,12 @@ private[timeseries] class CircularBuffer[T: ClassTag](size: Int)
    * @return
    */
   def read(offset: Int): T = {
+    if (offset >= size)
+      throw new IllegalStateException(
+        "Cannot read beyond the size of this buffer"
+      )
     val idx = incr(readIdx, offset)
-    verifyOverflow(idx)
+//    verifyOverflow(idx)
     buffer(idx)
   }
 
@@ -49,8 +57,11 @@ private[timeseries] class CircularBuffer[T: ClassTag](size: Int)
   def write(value: T): Unit = {
     buffer(writeIdx) = value
     writeIdx = incr(writeIdx)
-    if (!overflow && writeIdx == 0) overflow = true
-    if (overflow && writeIdx == readIdx) readIdx = incr(readIdx)
+    count += 1
+    if (count > maxSize) {
+      readIdx = incr(writeIdx)
+      count -= 1
+    }
   }
 
   @varargs
@@ -70,17 +81,17 @@ private[timeseries] class CircularBuffer[T: ClassTag](size: Int)
   }
 
   private[this] def verifyOverflow(idx: Int): Unit =
-    if (!overflow && idx >= writeIdx)
+    if (isEmpty)
       throw new IllegalStateException("Cannot read ahead of written value")
 
   private[this] def incr(idx: Int, amount: Int = 1): Int =
-    Math.abs((idx + amount) % size)
+    Math.abs((idx + amount) % maxSize)
 
   override def iterator: Iterator[T] =
-    if (!overflow && readIdx == writeIdx) Iterator.empty[T]
+    if (isEmpty) Iterator.empty[T]
     else
       new AbstractIterator[T] {
-        override def hasNext: Boolean = !overflow && readIdx != writeIdx
+        override def hasNext: Boolean = nonEmpty
         override def next(): T = read()
       }
 }

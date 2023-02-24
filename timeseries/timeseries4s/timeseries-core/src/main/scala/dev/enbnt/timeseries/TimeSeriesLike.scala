@@ -6,4 +6,5 @@ trait TimeSeriesLike extends Iterable[DataPoint] {
   def startTime: Time
   def endTime: Time
   def interval: Duration
+
 }
