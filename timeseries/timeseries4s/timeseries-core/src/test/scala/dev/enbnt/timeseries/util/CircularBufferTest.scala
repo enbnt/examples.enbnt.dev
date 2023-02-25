@@ -30,11 +30,11 @@ class CircularBufferTest extends Test {
     }
     rb.write(1)
     intercept[IllegalStateException] {
-      rb.readIndex(1)
+      rb.read(1)
     }
     rb.write(2)
     intercept[IllegalStateException] {
-      rb.readRaw(2)
+      rb.read(2)
     }
   }
 
@@ -96,65 +96,43 @@ class CircularBufferTest extends Test {
 
   }
 
-  test("CircularBuffer#writeIndex") {
+  test("CircularBuffer#iterator does not modify the read index") {
     val rb = new CircularBuffer[Int](4)
-    assert(rb.writeIndex() == 0)
-    rb.write(1, 2)
-    assert(rb.writeIndex() == 2)
-    rb.write(3, 4)
-    assert(rb.writeIndex() == 0)
-    assert(rb.writeIndex(2) == 2)
-    assert(rb.writeIndex(4) == 0)
-    rb.write(5, 6)
-    assert(rb.writeIndex() == 2)
-    assert(rb.writeIndex(-4) == 2)
-    rb.write(7, 8)
-    assert(rb.writeIndex() == 0)
-    assert(rb.writeIndex(-4) == 0)
-  }
-
-  test("CircularBuffer#readIndex") {
-    val rb = new CircularBuffer[Int](4)
-    rb.write(1, 2, 3, 4)
-    assert(rb.readIndex() == 0)
-    rb.read()
-    assert(rb.readIndex() == 1)
-    assert(rb.readIndex(2) == 3)
-    assert(rb.readIndex() == 1)
-    rb.read()
-    assert(rb.readIndex() == 2)
-    assert(rb.readIndex(-4) == 2)
-    assert(rb.readIndex(4) == 2)
-    assert(rb.readIndex(2) == 0)
-    assert(rb.readIndex(-2) == 0)
-    rb.read()
-    rb.read()
-    assert(rb.readIndex() == 0)
-    assert(rb.readIndex(3) == 3)
-    assert(rb.readIndex(4) == 0)
-    assert(rb.writeIndex() == 0)
-  }
-
-  test("CircularBuffer#readRaw") {
-    val rb = new CircularBuffer[Int](4)
-    rb.write(1, 2, 3, 4)
-    assert(rb.readRaw(3) == 4)
-    assert(rb.readRaw(0) == 1)
-    rb.write(5, 6)
-    assert(rb.readRaw(3) == 4)
-    assert(rb.readRaw(0) == 5)
-    assert(rb.readRaw(1) == 6)
-    assert(rb.read() == 5) // verify that we haven't modified the read index
-  }
-
-  test("CircularBuffer#iterator") {
-    val rb = new CircularBuffer[Int](4)
-    assert(rb.iterator == Iterator.empty[Int])
+    assert(rb.iterator.isEmpty)
     assert(rb.isEmpty)
 
     rb.write(1, 2, 3, 4)
     assert(rb.nonEmpty)
     rb.to[LazyList[Int]](LazyList.iterableFactory) shouldEqual Seq(1, 2, 3, 4)
+    assert(
+      rb.nonEmpty
+    ) // does not modify the read index, we can retrieve the same iterator
+    rb.to[LazyList[Int]](LazyList.iterableFactory) shouldEqual Seq(1, 2, 3, 4)
+  }
+
+  test("CircularBuffer#apply does not modify the read index") {
+    val rb = new CircularBuffer[String](8)
+    assert(rb.isEmpty)
+    rb.write("hello", "there", "good", "friend")
+    assert(rb(0) == "hello")
+    assert(rb(1) == "there")
+    assert(rb(2) == "good")
+    assert(rb(3) == "friend")
+    intercept[IllegalStateException] {
+      rb(4)
+    }
+  }
+
+  test("CircularBuffer#drop") {
+    val rb = new CircularBuffer[Int](4)
+    assert(rb.iterator.isEmpty)
+    assert(rb.isEmpty)
+
+    rb.write(1, 2, 3, 4)
+    assert(rb.nonEmpty)
+    rb.drop(1)
+      .take(2)
+      .to[LazyList[Int]](LazyList.iterableFactory) shouldEqual Seq(2, 3)
   }
 
 }

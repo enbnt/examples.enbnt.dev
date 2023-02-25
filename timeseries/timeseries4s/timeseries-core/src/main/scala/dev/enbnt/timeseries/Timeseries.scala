@@ -2,6 +2,7 @@ package dev.enbnt.timeseries
 
 import com.twitter.util.Duration
 import com.twitter.util.Time
+import dev.enbnt.timeseries.common.DataPoint
 
 import scala.collection.Searching
 

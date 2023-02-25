@@ -3,20 +3,21 @@ package dev.enbnt.timeseries
 import com.twitter.conversions.DurationOps._
 import com.twitter.util.{Duration, Time}
 import org.scalatest.funsuite.AnyFunSuite
-import TimeseriesOps._
+import TimeSeriesOps._
+import dev.enbnt.timeseries.common.DataPoint
 
-object TimeseriesBehaviors {
+object TimeSeriesBehaviors {
   case class Input(
       interval: Duration,
       values: IndexedSeq[DataPoint]
   )
 }
 
-trait TimeseriesBehaviors { this: AnyFunSuite =>
+trait TimeSeriesBehaviors { this: AnyFunSuite =>
 
-  def nonEmptyTimeseries(
+  def nonEmptyTimeSeries(
       label: String,
-      ts: TimeseriesBehaviors.Input => Timeseries
+      ts: TimeSeriesBehaviors.Input => TimeSeries
   ): Unit = {
 
     test(s"$label#range outer") {
@@ -24,8 +25,8 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
         val interval = 1.second
         val start = Time.now.floor(interval) - 5.seconds
 
-        val t0: Timeseries = ts(
-          TimeseriesBehaviors.Input(
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
             interval,
             Array(
               DataPoint(start, 1),
@@ -36,7 +37,7 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
             )
           )
         )
-        val t1: Timeseries = t0.range(start - 1.second, start + 8.seconds)
+        val t1: TimeSeries = t0.range(start - 1.second, start + 8.seconds)
 
         assert(t1.start == t0.start)
         assert(t1.end == t0.end)
@@ -50,8 +51,8 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
         val interval = 1.second
         val start = Time.now.floor(interval) - 5.seconds
 
-        val t0: Timeseries = ts(
-          TimeseriesBehaviors.Input(
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
             interval,
             Array(
               DataPoint(start, 1),
@@ -62,10 +63,13 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
             )
           )
         )
-        val t1: Timeseries = t0.range(start + 1.second, start + 3.seconds)
+        val t1: TimeSeries = t0.range(start + 1.second, start + 3.seconds)
 
+        // CircularBuffer(DataPoint(2023-02-24 21:24:48 +0000,1.0), DataPoint(2023-02-24 21:24:49 +0000,2.0), DataPoint(2023-02-24 21:24:50 +0000,3.0), DataPoint(2023-02-24 21:24:51 +0000,4.0), DataPoint(2023-02-24 21:24:52 +0000,5.0))
+        // did not equal
+        // DenseTimeSeries[DenseTimeSeries(DataPoint(2023-02-24 21:24:49 +0000,2.0), DataPoint(2023-02-24 21:24:50 +0000,3.0), DataPoint(2023-02-24 21:24:51 +0000,4.0))
         assert(
-          t1 == Timeseries(interval, t0.drop(1).take(3).toIndexedSeq)
+          t1 == TimeSeries(interval, t0.drop(1).take(3))
         )
         assert(t1.start == start + 1.second)
         assert(t1.end == start + 3.seconds)
@@ -79,8 +83,8 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
         val interval = 1.second
         val start = Time.now.floor(interval) - 5.seconds
 
-        val t0: Timeseries = ts(
-          TimeseriesBehaviors.Input(
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
             interval,
             Array(
               DataPoint(start, 1),
@@ -91,10 +95,10 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
             )
           )
         )
-        val t1: Timeseries = t0.range(start, start + 3.seconds)
+        val t1: TimeSeries = t0.range(start, start + 3.seconds)
 
         assert(
-          t1 == Timeseries(interval, t0.iterator.toIndexedSeq.take(4))
+          t1 == TimeSeries(interval, t0.iterator.toIndexedSeq.take(4))
         )
         assert(t1.start == start)
         assert(t1.end == start + 3.seconds)
@@ -107,8 +111,8 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
         val interval = 1.second
         val start = Time.now.floor(interval) - 5.seconds
 
-        val t0: Timeseries = ts(
-          TimeseriesBehaviors.Input(
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
             interval,
             Array(
               DataPoint(start, 1),
@@ -119,16 +123,16 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
             )
           )
         )
-        val t1: Timeseries = t0.range(start - 5.seconds, start - 3.seconds)
+        val t1: TimeSeries = t0.range(start - 5.seconds, start - 3.seconds)
 
         assert(
-          t1 == EmptyTimeseries
+          t1 == TimeSeries.empty()
         )
 
-        val t2: Timeseries = t0.range(start + 5.seconds, start + 8.seconds)
+        val t2: TimeSeries = t0.range(start + 5.seconds, start + 8.seconds)
 
         assert(
-          t2 == EmptyTimeseries
+          t2 == TimeSeries.empty()
         )
       }
 
@@ -139,8 +143,8 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
         val interval = 1.second
         val start = Time.now.floor(interval) - 5.seconds
 
-        val t0: Timeseries = ts(
-          TimeseriesBehaviors.Input(
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
             interval,
             Array(
               DataPoint(start, 1),
@@ -151,10 +155,10 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
             )
           )
         )
-        val t1: Timeseries = t0.range(start + 3.seconds, start + 3.seconds)
+        val t1: TimeSeries = t0.range(start + 3.seconds, start + 3.seconds)
 
         assert(
-          t1 == Timeseries(interval, Array(DataPoint(start + 3.seconds, 4)))
+          t1 == TimeSeries(interval, Array(DataPoint(start + 3.seconds, 4)))
         )
       }
 
@@ -162,12 +166,12 @@ trait TimeseriesBehaviors { this: AnyFunSuite =>
 
   }
 
-  def emptyTimeseries(ts: => Timeseries): Unit = {
-    test("EmptyTimeseries#empty iterator") {
+  def emptyTimeSeries(ts: => TimeSeries): Unit = {
+    test("EmptyTimeSeries#empty iterator") {
       assert(ts.isEmpty)
       assert(ts.iterator.isEmpty)
     }
-    test("EmptyTimeseries#range") {
+    test("EmptyTimeSeries#range") {
       assert(ts.range(Time.Bottom, Time.Top).isEmpty)
     }
   }

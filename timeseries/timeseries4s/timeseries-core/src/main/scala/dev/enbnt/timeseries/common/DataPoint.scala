@@ -1,4 +1,4 @@
-package dev.enbnt.timeseries
+package dev.enbnt.timeseries.common
 
 import com.twitter.util.Time
 
