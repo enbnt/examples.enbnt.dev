@@ -22,11 +22,7 @@ class TimeSeriesTest extends Test with TimeSeriesBehaviors {
       "SparseTimeSeries",
       { case TimeSeriesBehaviors.Input(interval, values) =>
         val (t, v) = values.unzip
-        new immutable.SparseTimeSeries(
-          interval,
-          t,
-          v
-        )
+        new immutable.SparseTimeSeries(interval, t, v)
       }
     )
   )
@@ -46,10 +42,7 @@ class TimeSeriesTest extends Test with TimeSeriesBehaviors {
     nonEmptyTimeSeries(
       "TimeSeries.apply",
       { case TimeSeriesBehaviors.Input(interval, values) =>
-        TimeSeries(
-          interval,
-          values
-        )
+        TimeSeries(interval, values)
       }
     )
   )

@@ -23,11 +23,11 @@ import scala.reflect.ClassTag
  *   This implementation is <b>NOT</b> thread safe.
  */
 private[timeseries] class CircularBuffer[T: ClassTag](
-    val capacity: Int,
-    elems: Array[T],
-    var readIdx: Int,
-    var writeIdx: Int,
-    var count: Int
+  val capacity: Int,
+  elems: Array[T],
+  var readIdx: Int,
+  var writeIdx: Int,
+  var count: Int
 ) extends Iterable[T]
     with IterableOps[T, CircularBuffer, CircularBuffer[T]]
     with IterableFactoryDefaults[T, CircularBuffer]

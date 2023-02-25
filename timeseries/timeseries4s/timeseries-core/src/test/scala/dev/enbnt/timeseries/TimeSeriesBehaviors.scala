@@ -7,17 +7,14 @@ import TimeSeriesOps._
 import dev.enbnt.timeseries.common.DataPoint
 
 object TimeSeriesBehaviors {
-  case class Input(
-      interval: Duration,
-      values: IndexedSeq[DataPoint]
-  )
+  case class Input(interval: Duration, values: IndexedSeq[DataPoint])
 }
 
 trait TimeSeriesBehaviors { this: AnyFunSuite =>
 
   def nonEmptyTimeSeries(
-      label: String,
-      ts: TimeSeriesBehaviors.Input => TimeSeries
+    label: String,
+    ts: TimeSeriesBehaviors.Input => TimeSeries
   ): Unit = {
 
     test(s"$label#range outer") {
@@ -65,9 +62,7 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
         )
         val t1: TimeSeries = t0.range(start + 1.second, start + 3.seconds)
 
-        assert(
-          t1 == TimeSeries(interval, t0.drop(1).take(3))
-        )
+        assert(t1 == TimeSeries(interval, t0.drop(1).take(3)))
         assert(t1.start == start + 1.second, t1)
         assert(t1.end == start + 3.seconds, t1)
 
@@ -94,9 +89,7 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
         )
         val t1: TimeSeries = t0.range(start, start + 3.seconds)
 
-        assert(
-          t1 == TimeSeries(interval, t0.take(4))
-        )
+        assert(t1 == TimeSeries(interval, t0.take(4)))
         assert(t1.start == start)
         assert(t1.end == start + 3.seconds)
 
@@ -122,15 +115,11 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
         )
         val t1: TimeSeries = t0.range(start - 5.seconds, start - 3.seconds)
 
-        assert(
-          t1 == TimeSeries.empty()
-        )
+        assert(t1 == TimeSeries.empty())
 
         val t2: TimeSeries = t0.range(start + 5.seconds, start + 8.seconds)
 
-        assert(
-          t2 == TimeSeries.empty()
-        )
+        assert(t2 == TimeSeries.empty())
       }
 
     }

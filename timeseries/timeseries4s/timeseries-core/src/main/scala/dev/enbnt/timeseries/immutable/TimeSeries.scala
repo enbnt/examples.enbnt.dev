@@ -23,11 +23,7 @@ object TimeSeries {
       case single if single.size == 1 =>
         single.headOption match {
           case Some(dp) =>
-            new DenseTimeSeries(
-              interval,
-              dp.time,
-              IndexedSeq(dp.value)
-            )
+            new DenseTimeSeries(interval, dp.time, IndexedSeq(dp.value))
           case _ =>
             throw new IllegalStateException(
               s"Expected a valid time stamp but found $data"
@@ -63,11 +59,7 @@ object TimeSeries {
             values.toIndexedSeq
           )
         } else {
-          new DenseTimeSeries(
-            interval,
-            start,
-            data.map(_.value).toIndexedSeq
-          )
+          new DenseTimeSeries(interval, start, data.map(_.value).toIndexedSeq)
         }
     }
 
@@ -88,9 +80,9 @@ case object EmptyTimeSeries
 }
 
 final class SparseTimeSeries(
-    val interval: Duration,
-    times: IndexedSeq[Time],
-    values: IndexedSeq[Double]
+  val interval: Duration,
+  times: IndexedSeq[Time],
+  values: IndexedSeq[Double]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>
@@ -122,9 +114,9 @@ final class SparseTimeSeries(
 }
 
 final class DenseTimeSeries(
-    val interval: Duration,
-    val start: Time,
-    values: IndexedSeq[Double]
+  val interval: Duration,
+  val start: Time,
+  values: IndexedSeq[Double]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>

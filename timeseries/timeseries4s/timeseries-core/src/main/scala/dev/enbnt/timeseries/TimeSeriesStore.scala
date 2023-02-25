@@ -21,15 +21,10 @@ class InMemoryTimeSeriesStore(underlying: Map[String, TimeSeries])
 
   def iterator: Iterator[(String, TimeSeries)] = underlying.iterator
 
-  def removed(
-      key: String
-  ): Map[String, dev.enbnt.timeseries.TimeSeries] =
+  def removed(key: String): Map[String, dev.enbnt.timeseries.TimeSeries] =
     underlying.removed(key)
 
-  def updated[V1 >: TimeSeries](
-      key: String,
-      value: V1
-  ): Map[String, V1] =
+  def updated[V1 >: TimeSeries](key: String, value: V1): Map[String, V1] =
     underlying.updated(key, value)
 
   // Members declared in scala.collection.MapOps
