@@ -1,7 +1,7 @@
 package dev.enbnt.timeseries
 
 import com.twitter.util.Time
-import dev.enbnt.timeseries.common.{Seekable, TimeSeriesLike}
+import dev.enbnt.timeseries.common.{DataPoint, Seekable, TimeSeriesLike}
 
 object TimeSeriesOps {
   implicit final class RichTimeSeries(val ts: TimeSeriesLike)
@@ -11,17 +11,18 @@ object TimeSeriesOps {
       require(begin <= end)
       if (begin <= ts.start && end >= ts.end) ts
       else {
-        val underlying = ts match {
+        val underlying: Iterable[DataPoint] = ts match {
           case seek: Seekable =>
-            val b0 = seek.timeIndex(begin)
-            val e0 = seek.knownSize.min(seek.timeIndex(end) + 1)
+            val startIdx = seek.timeIndex(begin)
+            val endIdx = seek.size.min(seek.timeIndex(end) + 1)
 
-            ts.slice(b0, e0)
+            ts.view.slice(startIdx, endIdx)
           case _ =>
             ts.dropWhile(_.time < begin).takeWhile(_.time <= end)
         }
 
-        TimeSeries(ts.interval, underlying.toIndexedSeq)
+        if (ts.isEmpty) TimeSeries.empty()
+        else TimeSeries(ts.interval, underlying)
       }
 
     }

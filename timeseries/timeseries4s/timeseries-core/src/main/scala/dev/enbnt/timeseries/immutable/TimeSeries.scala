@@ -21,15 +21,40 @@ object TimeSeries {
     data match {
       case e if e.isEmpty => EmptyTimeSeries
       case single if single.size == 1 =>
-        new DenseTimeSeries(
-          interval,
-          single.head.time,
-          IndexedSeq(single.head.value)
-        )
+        single.headOption match {
+          case Some(dp) =>
+            new DenseTimeSeries(
+              interval,
+              dp.time,
+              IndexedSeq(dp.value)
+            )
+          case _ =>
+            throw new IllegalStateException(
+              s"Expected a valid time stamp but found $data"
+            )
+        }
+
       case _ =>
         val size = data.size
+
+        val end = data.lastOption match {
+          case Some(dp) => dp.time
+          case _ =>
+            throw new IllegalStateException(
+              s"Expected a valid end time but found $data"
+            )
+        }
+
+        val start = data.headOption match {
+          case Some(dp) => dp.time
+          case _ =>
+            throw new IllegalStateException(
+              s"Expected a valid start time but found $data"
+            )
+        }
+
         val span: Int =
-          ((data.last.time - data.head.time).inNanoseconds / interval.inNanoseconds).toInt
+          ((end - start).inNanoseconds / interval.inNanoseconds).toInt
         if (span < size / 2) {
           val (times, values) = data.unzip
           new SparseTimeSeries(
@@ -40,7 +65,7 @@ object TimeSeries {
         } else {
           new DenseTimeSeries(
             interval,
-            data.head.time,
+            start,
             data.map(_.value).toIndexedSeq
           )
         }
@@ -67,7 +92,8 @@ final class SparseTimeSeries(
     times: IndexedSeq[Time],
     values: IndexedSeq[Double]
 ) extends TimeSeries
-    with Seekable {
+    with Seekable
+    with IndexedSeq[DataPoint] { self =>
 
   require(times.nonEmpty)
   require(times.size == values.size)
@@ -76,7 +102,6 @@ final class SparseTimeSeries(
   override def end: Time = times.last
   override def apply(i: Int): DataPoint = DataPoint(times(i), values(i))
   override def length: Int = values.length
-  override def toString(): String = s"SparseTimeSeries[${super.toString()}]"
   override def timeIndex(time: Time): Int = {
     times.search(time) match {
       case Searching.Found(idx)                     => idx
@@ -85,6 +110,15 @@ final class SparseTimeSeries(
     }
   }
 
+  override def view: IndexedSeqView[DataPoint] = new IndexedSeqView[DataPoint] {
+    def length: Int = self.length
+    def apply(i: Int): DataPoint = self(i)
+  }
+
+  override def knownSize: Int = times.length
+
+  override def className = "SparseTimeSeries"
+
 }
 
 final class DenseTimeSeries(
@@ -92,7 +126,8 @@ final class DenseTimeSeries(
     val start: Time,
     values: IndexedSeq[Double]
 ) extends TimeSeries
-    with Seekable { self =>
+    with Seekable
+    with IndexedSeq[DataPoint] { self =>
 
   require(values.nonEmpty)
 
@@ -102,8 +137,6 @@ final class DenseTimeSeries(
   override def apply(i: Int): DataPoint = DataPoint(timeAt(i), values(i))
 
   override def length: Int = values.length
-
-  override def toString(): String = s"DenseTimeSeries[${super.toString()}]"
 
   override def timeIndex(time: Time): Int =
     ((time - start).inNanoseconds / interval.inNanoseconds).toInt

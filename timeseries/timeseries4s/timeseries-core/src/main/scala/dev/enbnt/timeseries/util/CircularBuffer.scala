@@ -22,22 +22,30 @@ import scala.reflect.ClassTag
  * @note
  *   This implementation is <b>NOT</b> thread safe.
  */
-private[timeseries] class CircularBuffer[T: ClassTag](val capacity: Int)
-    extends Iterable[T]
+private[timeseries] class CircularBuffer[T: ClassTag](
+    val capacity: Int,
+    elems: Array[T],
+    var readIdx: Int,
+    var writeIdx: Int,
+    var count: Int
+) extends Iterable[T]
     with IterableOps[T, CircularBuffer, CircularBuffer[T]]
     with IterableFactoryDefaults[T, CircularBuffer]
-    with StrictOptimizedIterableOps[T, CircularBuffer, CircularBuffer[T]]
-    with IndexedSeqOps[T, CircularBuffer, CircularBuffer[T]] {
+    with StrictOptimizedIterableOps[T, CircularBuffer, CircularBuffer[T]] {
+  self =>
 
-  private[this] val buffer: Array[T] = new Array[T](capacity)
-  private[this] var readIdx: Int = 0
-  private[this] var writeIdx: Int = 0
-  private[this] var count = 0
+  def this(capacity: Int) = this(
+    capacity,
+    elems = Array.ofDim[T](capacity),
+    readIdx = 0,
+    writeIdx = 0,
+    count = 0
+  )
 
   /** @return */
   def read(): T = {
-    verifyOverflow(readIdx)
-    val v = buffer(readIdx)
+    verifyOverflow()
+    val v = elems(readIdx)
     readIdx = incr(readIdx)
     count -= 1
     v
@@ -58,12 +66,12 @@ private[timeseries] class CircularBuffer[T: ClassTag](val capacity: Int)
         "Cannot read beyond the size of this buffer"
       )
     val idx = incr(readIdx, offset)
-    buffer(idx)
+    elems(idx)
   }
 
   /** @param value */
   def write(value: T): Unit = {
-    buffer(writeIdx) = value
+    elems(writeIdx) = value
     writeIdx = incr(writeIdx)
     count += 1
     if (count > capacity) {
@@ -77,7 +85,7 @@ private[timeseries] class CircularBuffer[T: ClassTag](val capacity: Int)
     values.foreach(write)
   }
 
-  private[this] def verifyOverflow(idx: Int): Unit =
+  private[this] def verifyOverflow(): Unit =
     if (isEmpty)
       throw new IllegalStateException("Cannot read ahead of written value")
 
@@ -87,8 +95,8 @@ private[timeseries] class CircularBuffer[T: ClassTag](val capacity: Int)
   def apply(i: Int): T = read(i)
 
   override def view: IndexedSeqView[T] = new IndexedSeqView[T] {
-    def length: Int = CircularBuffer.this.count
-    def apply(i: Int): T = read(i)
+    def length: Int = self.count
+    def apply(i: Int): T = self(i)
   }
 
   override def knownSize: Int = count
@@ -98,14 +106,26 @@ private[timeseries] class CircularBuffer[T: ClassTag](val capacity: Int)
   override val iterableFactory: IterableFactory[CircularBuffer] =
     new CircularBufferFactory(capacity)
 
-  override def length: Int = count
+  @`inline` def :+[B >: T](elem: B): CircularBuffer[B] = appended(elem)
 
-  override def appended[B >: T](elem: B): CircularBuffer[B] = {
-    val cb = new CircularBuffer[Any](capacity).asInstanceOf[CircularBuffer[B]]
-    this.foreach(cb.write)
-    cb.write(elem)
-    cb
+  def appended[B >: T](elem: B): CircularBuffer[B] = {
+    val newElems = Array.ofDim[Any](capacity)
+    Array.copy(elems, 0, newElems, 0, capacity)
+
+    val cb = new CircularBuffer[Any](
+      capacity,
+      elems = newElems,
+      readIdx = self.readIdx,
+      writeIdx = self.writeIdx,
+      count = count
+    )
+    val ret = cb.asInstanceOf[CircularBuffer[B]]
+    ret.write(elem)
+    ret
   }
+
+  def iterator: Iterator[T] = view.iterator
+
 }
 
 class CircularBufferFactory(capacity: Int)

@@ -65,14 +65,11 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
         )
         val t1: TimeSeries = t0.range(start + 1.second, start + 3.seconds)
 
-        // CircularBuffer(DataPoint(2023-02-24 21:24:48 +0000,1.0), DataPoint(2023-02-24 21:24:49 +0000,2.0), DataPoint(2023-02-24 21:24:50 +0000,3.0), DataPoint(2023-02-24 21:24:51 +0000,4.0), DataPoint(2023-02-24 21:24:52 +0000,5.0))
-        // did not equal
-        // DenseTimeSeries[DenseTimeSeries(DataPoint(2023-02-24 21:24:49 +0000,2.0), DataPoint(2023-02-24 21:24:50 +0000,3.0), DataPoint(2023-02-24 21:24:51 +0000,4.0))
         assert(
           t1 == TimeSeries(interval, t0.drop(1).take(3))
         )
-        assert(t1.start == start + 1.second)
-        assert(t1.end == start + 3.seconds)
+        assert(t1.start == start + 1.second, t1)
+        assert(t1.end == start + 3.seconds, t1)
 
       }
 
@@ -98,7 +95,7 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
         val t1: TimeSeries = t0.range(start, start + 3.seconds)
 
         assert(
-          t1 == TimeSeries(interval, t0.iterator.toIndexedSeq.take(4))
+          t1 == TimeSeries(interval, t0.take(4))
         )
         assert(t1.start == start)
         assert(t1.end == start + 3.seconds)
@@ -155,6 +152,7 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
             )
           )
         )
+
         val t1: TimeSeries = t0.range(start + 3.seconds, start + 3.seconds)
 
         assert(

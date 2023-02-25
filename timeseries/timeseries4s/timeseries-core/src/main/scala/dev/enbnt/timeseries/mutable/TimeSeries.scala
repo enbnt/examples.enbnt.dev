@@ -13,27 +13,25 @@ sealed trait TimeSeries extends TimeSeriesLike {
 class CircularBufferTimeSeries(override val interval: Duration, capacity: Int)
     extends CircularBuffer[DataPoint](capacity)
     with TimeSeries
-    with Seekable {
+    with Seekable { self =>
 
-  private[this] val buffer: CircularBuffer[DataPoint] =
-    new CircularBuffer[DataPoint](capacity)
+  override def append(dataPoint: DataPoint): Unit = write(dataPoint)
 
-  override def append(dataPoint: DataPoint): Unit = buffer.write(dataPoint)
-
-  override def start: Time = buffer.headOption match {
+  override def start: Time = self.headOption match {
     case Some(dp) => dp.time
-    case _        => Time.Top
+    case _        => throw new IllegalStateException(s"No start in $this")
   }
 
-  override def end: Time = buffer.headOption match {
+  override def end: Time = lastOption match {
     case Some(dp) => dp.time
-    case _        => Time.Bottom
+    case _        => throw new IllegalStateException(s"No start in $this")
   }
 
-  override def timeIndex(time: Time): Int =
-    buffer.search(DataPoint(time, 0))(DataPoint.timeOrdering) match {
+  override def timeIndex(time: Time): Int = {
+    this.toIndexedSeq.search(DataPoint(time, 0))(DataPoint.timeOrdering) match {
       case Searching.Found(idx)                     => idx
       case Searching.InsertionPoint(idx) if idx > 0 => idx
-      case _                                        => -1
+      case _ => -1 // special case at 0 index
     }
+  }
 }
