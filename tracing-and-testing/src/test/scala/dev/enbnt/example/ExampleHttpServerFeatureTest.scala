@@ -1,9 +1,9 @@
 package dev.enbnt.example
 
 import com.twitter.finagle.http.Status._
-import com.twitter.inject.server.FeatureTest
 import com.twitter.finatra.http.EmbeddedHttpServer
 import com.twitter.inject.InMemoryTracer
+import com.twitter.inject.server.FeatureTest
 
 class ExampleHttpServerFeatureTest extends FeatureTest {
 

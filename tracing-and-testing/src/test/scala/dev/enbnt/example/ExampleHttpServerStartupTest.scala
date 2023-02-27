@@ -1,8 +1,8 @@
 package dev.enbnt.example
 
 import com.google.inject.Stage
-import com.twitter.inject.server.FeatureTest
 import com.twitter.finatra.http.EmbeddedHttpServer
+import com.twitter.inject.server.FeatureTest
 
 class ExampleHttpServerStartupTest extends FeatureTest {
 

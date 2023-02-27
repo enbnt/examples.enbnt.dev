@@ -1,7 +1,7 @@
 package dev.enbnt.example
 
-import com.twitter.finagle.tracing.Trace
 import com.twitter.finagle.http.Request
+import com.twitter.finagle.tracing.Trace
 import com.twitter.finatra.http.Controller
 
 class LifecycleController extends Controller {

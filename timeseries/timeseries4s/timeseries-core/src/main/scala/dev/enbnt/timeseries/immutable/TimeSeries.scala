@@ -1,18 +1,18 @@
 package dev.enbnt.timeseries.immutable
 
-import com.twitter.util.{Duration, Time}
-import dev.enbnt.timeseries.common.{DataPoint, Seekable, TimeSeriesLike}
-
-import scala.collection.{
-  IndexedSeqOps,
-  IndexedSeqView,
-  IterableFactory,
-  IterableFactoryDefaults,
-  IterableOps,
-  Searching,
-  StrictOptimizedIterableOps,
-  mutable
-}
+import com.twitter.util.Duration
+import com.twitter.util.Time
+import dev.enbnt.timeseries.common.DataPoint
+import dev.enbnt.timeseries.common.Seekable
+import dev.enbnt.timeseries.common.TimeSeriesLike
+import scala.collection.IndexedSeqOps
+import scala.collection.IndexedSeqView
+import scala.collection.IterableFactory
+import scala.collection.IterableFactoryDefaults
+import scala.collection.IterableOps
+import scala.collection.Searching
+import scala.collection.StrictOptimizedIterableOps
+import scala.collection.mutable
 
 sealed trait TimeSeries extends TimeSeriesLike
 

@@ -1,7 +1,6 @@
 package dev.enbnt.timeseries.util
 
 import com.twitter.inject.Test
-
 import scala.collection.IterableOnce.iterableOnceExtensionMethods
 
 class CircularBufferTest extends Test {

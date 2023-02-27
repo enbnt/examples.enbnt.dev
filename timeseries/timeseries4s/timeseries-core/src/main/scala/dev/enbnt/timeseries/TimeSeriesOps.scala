@@ -1,7 +1,9 @@
 package dev.enbnt.timeseries
 
 import com.twitter.util.Time
-import dev.enbnt.timeseries.common.{DataPoint, Seekable, TimeSeriesLike}
+import dev.enbnt.timeseries.common.DataPoint
+import dev.enbnt.timeseries.common.Seekable
+import dev.enbnt.timeseries.common.TimeSeriesLike
 
 object TimeSeriesOps {
   implicit final class RichTimeSeries(val ts: TimeSeriesLike)

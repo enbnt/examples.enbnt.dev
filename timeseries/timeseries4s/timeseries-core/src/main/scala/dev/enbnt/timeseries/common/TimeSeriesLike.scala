@@ -1,6 +1,7 @@
 package dev.enbnt.timeseries.common
 
-import com.twitter.util.{Duration, Time}
+import com.twitter.util.Duration
+import com.twitter.util.Time
 
 trait TimeSeriesLike extends Iterable[DataPoint] {
   def start: Time

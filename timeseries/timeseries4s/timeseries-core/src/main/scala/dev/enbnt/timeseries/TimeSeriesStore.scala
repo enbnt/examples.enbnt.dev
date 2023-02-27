@@ -1,7 +1,7 @@
 package dev.enbnt.timeseries
 
-import com.twitter.util.Time
 import TimeSeriesOps._
+import com.twitter.util.Time
 
 sealed trait TimeSeriesStore {
 

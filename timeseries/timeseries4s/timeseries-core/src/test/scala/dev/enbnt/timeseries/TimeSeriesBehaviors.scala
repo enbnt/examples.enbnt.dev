@@ -1,10 +1,11 @@
 package dev.enbnt.timeseries
 
-import com.twitter.conversions.DurationOps._
-import com.twitter.util.{Duration, Time}
-import org.scalatest.funsuite.AnyFunSuite
 import TimeSeriesOps._
+import com.twitter.conversions.DurationOps._
+import com.twitter.util.Duration
+import com.twitter.util.Time
 import dev.enbnt.timeseries.common.DataPoint
+import org.scalatest.funsuite.AnyFunSuite
 
 object TimeSeriesBehaviors {
   case class Input(interval: Duration, values: IndexedSeq[DataPoint])
