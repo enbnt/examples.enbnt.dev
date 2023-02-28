@@ -15,8 +15,8 @@ object TimeSeriesOps {
       else {
         val underlying: Iterable[DataPoint] = ts match {
           case seek: Seekable =>
-            val startIdx = seek.timeIndex(begin)
-            val endIdx = seek.size.min(seek.timeIndex(end) + 1)
+            val startIdx = seek.indexAt(begin)
+            val endIdx = seek.size.min(seek.indexAt(end) + 1)
 
             ts.view.slice(startIdx, endIdx)
           case _ =>

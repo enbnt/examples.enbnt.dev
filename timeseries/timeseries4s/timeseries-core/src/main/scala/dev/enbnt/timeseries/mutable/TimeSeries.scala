@@ -30,7 +30,7 @@ class CircularBufferTimeSeries(override val interval: Duration, capacity: Int)
     case _        => throw new IllegalStateException(s"No end in $this")
   }
 
-  override def timeIndex(time: Time): Int = {
+  override def indexAt(time: Time): Int = {
     this.toIndexedSeq.search(DataPoint(time, 0))(DataPoint.timeOrdering) match {
       case Searching.Found(idx)                     => idx
       case Searching.InsertionPoint(idx) if idx > 0 => idx

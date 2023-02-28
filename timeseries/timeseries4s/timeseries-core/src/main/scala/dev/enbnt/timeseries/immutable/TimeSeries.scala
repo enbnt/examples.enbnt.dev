@@ -7,12 +7,7 @@ import dev.enbnt.timeseries.common.Seekable
 import dev.enbnt.timeseries.common.TimeSeriesLike
 import scala.collection.IndexedSeqOps
 import scala.collection.IndexedSeqView
-import scala.collection.IterableFactory
-import scala.collection.IterableFactoryDefaults
-import scala.collection.IterableOps
 import scala.collection.Searching
-import scala.collection.StrictOptimizedIterableOps
-import scala.collection.mutable
 
 sealed trait TimeSeries extends TimeSeriesLike
 
@@ -51,38 +46,62 @@ object TimeSeries {
 
         val span: Int =
           ((end - start).inNanoseconds / interval.inNanoseconds).toInt
-        if (span < size / 2) {
+
+        // TODO - this will only work when we support undefined values for a dense time series
+//        if (span < size / 2) {
+//          val (times, values) = data.unzip
+//          new SparseTimeSeries(
+//            interval,
+//            times.toIndexedSeq,
+//            values.toIndexedSeq
+//          )
+//        } else {
+//          new DenseTimeSeries(interval, start, data.map(_.value).toIndexedSeq)
+//        }
+
+        if (span == size) {
+          new DenseTimeSeries(interval, start, data.map(_.value).toIndexedSeq)
+        } else {
           val (times, values) = data.unzip
           new SparseTimeSeries(
             interval,
             times.toIndexedSeq,
             values.toIndexedSeq
           )
-        } else {
-          new DenseTimeSeries(interval, start, data.map(_.value).toIndexedSeq)
         }
+
     }
 
   def empty(): TimeSeries = EmptyTimeSeries
 }
 
-case object EmptyTimeSeries
+/** Represents a [[TimeSeries]] with no values and an undefined [[interval]]. */
+private[timeseries] case object EmptyTimeSeries
     extends TimeSeries
     with Seekable
     with IndexedSeqOps[DataPoint, Iterable, Iterable[DataPoint]] {
-  def interval: Duration = Duration.Zero
+  def interval: Duration = Duration.Undefined
   override def start: Time = Time.Bottom
   override def end: Time = Time.Top
   def apply(i: Int): DataPoint = throw new IndexOutOfBoundsException()
   override def toString(): String = "EmptyTimeSeries"
   override def length: Int = 0
-  override def timeIndex(time: Time): Int = -1
+  override def indexAt(time: Time): Int = -1
 }
 
-final class SparseTimeSeries(
-  val interval: Duration,
-  times: IndexedSeq[Time],
-  values: IndexedSeq[Double]
+/**
+ * Represents a [[TimeSeries]] that is sparsely populated along its given
+ * [[interval]]. In other words, if there are few existing entries spanning many
+ * intervals, as [[SparseTimeSeries]] may be an appropriate representation.
+ *
+ * @param interval
+ * @param times
+ * @param values
+ */
+private[timeseries] final class SparseTimeSeries(
+    val interval: Duration,
+    times: IndexedSeq[Time],
+    values: IndexedSeq[Double]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>
@@ -94,7 +113,7 @@ final class SparseTimeSeries(
   override def end: Time = times.last
   override def apply(i: Int): DataPoint = DataPoint(times(i), values(i))
   override def length: Int = values.length
-  override def timeIndex(time: Time): Int = {
+  override def indexAt(time: Time): Int = {
     times.search(time) match {
       case Searching.Found(idx)                     => idx
       case Searching.InsertionPoint(idx) if idx > 0 => idx
@@ -113,10 +132,13 @@ final class SparseTimeSeries(
 
 }
 
-final class DenseTimeSeries(
-  val interval: Duration,
-  val start: Time,
-  values: IndexedSeq[Double]
+// TODO - we need to define and filter undefined values.
+// For now we make the assumption that all data points are
+// filled in
+private[timeseries] final class DenseTimeSeries(
+    val interval: Duration,
+    val start: Time,
+    values: IndexedSeq[Double]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>
@@ -130,7 +152,7 @@ final class DenseTimeSeries(
 
   override def length: Int = values.length
 
-  override def timeIndex(time: Time): Int =
+  override def indexAt(time: Time): Int =
     ((time - start).inNanoseconds / interval.inNanoseconds).toInt
 
   override def end: Time = timeAt(values.length - 1)
