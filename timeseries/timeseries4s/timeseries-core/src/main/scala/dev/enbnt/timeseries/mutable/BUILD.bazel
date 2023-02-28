@@ -1,0 +1,12 @@
+load("@io_bazel_rules_scala//scala:scala.bzl", "scala_library")
+
+scala_library(
+    name = "mutable",
+    srcs = glob(["*.scala"]),
+    visibility = ["//visibility:public"],
+    deps = [
+        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries/common",
+        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries/util",
+        "@maven//:com_twitter_util_core_2_13",
+    ],
+)
