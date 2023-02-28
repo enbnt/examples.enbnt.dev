@@ -99,9 +99,9 @@ private[timeseries] case object EmptyTimeSeries
  * @param values
  */
 private[timeseries] final class SparseTimeSeries(
-    val interval: Duration,
-    times: IndexedSeq[Time],
-    values: IndexedSeq[Double]
+  val interval: Duration,
+  times: IndexedSeq[Time],
+  values: IndexedSeq[Double]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>
@@ -136,9 +136,9 @@ private[timeseries] final class SparseTimeSeries(
 // For now we make the assumption that all data points are
 // filled in
 private[timeseries] final class DenseTimeSeries(
-    val interval: Duration,
-    val start: Time,
-    values: IndexedSeq[Double]
+  val interval: Duration,
+  val start: Time,
+  values: IndexedSeq[Double]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>

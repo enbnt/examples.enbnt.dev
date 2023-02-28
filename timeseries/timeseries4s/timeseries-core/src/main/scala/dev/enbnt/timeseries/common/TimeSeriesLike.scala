@@ -5,10 +5,7 @@ import com.twitter.util.Time
 
 /** A base trait for TimeSeries implementations. */
 trait TimeSeriesLike extends Iterable[DataPoint] {
-  /**
-   *
-   * @return
-   */
+
   def start: Time
   def end: Time
   def interval: Duration
