@@ -29,3 +29,7 @@ jobs:
 
       - name: Run tests
         run: bazel test --test_output=errors --action_env="GTEST_COLOR=1" //...
+        
+      - name: Scalafmt lint
+        uses: AvaPL/scalafmt-native-formatter@v0.1.2
+
