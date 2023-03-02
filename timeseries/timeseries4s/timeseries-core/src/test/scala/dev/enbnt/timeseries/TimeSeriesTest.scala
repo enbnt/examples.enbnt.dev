@@ -8,11 +8,7 @@ class TimeSeriesTest extends Test with TimeSeriesBehaviors {
     nonEmptyTimeSeries(
       "DenseTimeSeries",
       { case TimeSeriesBehaviors.Input(interval, values) =>
-        new immutable.DenseTimeSeries(
-          interval,
-          values.head.time,
-          values.map(_.value)
-        )
+        immutable.DenseTimeSeries(interval, values)
       }
     )
   )
@@ -21,8 +17,7 @@ class TimeSeriesTest extends Test with TimeSeriesBehaviors {
     nonEmptyTimeSeries(
       "SparseTimeSeries",
       { case TimeSeriesBehaviors.Input(interval, values) =>
-        val (t, v) = values.unzip
-        new immutable.SparseTimeSeries(interval, t, v)
+        immutable.SparseTimeSeries(interval, values)
       }
     )
   )

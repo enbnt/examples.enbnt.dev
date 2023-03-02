@@ -5,10 +5,11 @@ import com.twitter.conversions.DurationOps._
 import com.twitter.util.Duration
 import com.twitter.util.Time
 import dev.enbnt.timeseries.common.DataPoint
+import dev.enbnt.timeseries.common.Value
 import org.scalatest.funsuite.AnyFunSuite
 
 object TimeSeriesBehaviors {
-  case class Input(interval: Duration, values: IndexedSeq[DataPoint])
+  case class Input(interval: Duration, values: Iterable[DataPoint])
 }
 
 trait TimeSeriesBehaviors { this: AnyFunSuite =>
@@ -148,6 +149,123 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
         assert(
           t1 == TimeSeries(interval, Array(DataPoint(start + 3.seconds, 4)))
         )
+      }
+    }
+
+    test(s"$label#get") {
+      Time.withCurrentTimeFrozen { _ =>
+        val interval = 1.second
+        val start = Time.now.floor(interval) - 5.seconds
+
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
+            interval,
+            Array(
+              DataPoint(start, 1),
+              DataPoint(start + 1.second, 2),
+              DataPoint(start + 2.seconds, 3),
+              DataPoint(start + 3.seconds, 4),
+              DataPoint(start + 4.seconds, 5)
+            )
+          )
+        )
+
+        assert(t0.get(start - 1.seconds) == None)
+        assert(t0.get(start) == Some(DataPoint(start, 1)))
+        assert(t0.get(start + 1.second) == Some(DataPoint(start + 1.second, 2)))
+        assert(
+          t0.get(start + 2.seconds) == Some(DataPoint(start + 2.seconds, 3))
+        )
+        assert(
+          t0.get(start + 3.seconds) == Some(DataPoint(start + 3.seconds, 4))
+        )
+        assert(
+          t0.get(start + 4.seconds) == Some(DataPoint(start + 4.seconds, 5))
+        )
+        assert(t0.get(start + 5.seconds) == None)
+
+      }
+
+    }
+
+    test(s"$label#get with undefined") {
+      Time.withCurrentTimeFrozen { _ =>
+        val interval = 1.second
+        val start = Time.now.floor(interval) - 5.seconds
+
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
+            interval,
+            Array(
+              DataPoint(start, 1),
+              DataPoint(start + 1.second, Value.Undefined),
+              DataPoint(start + 2.seconds, 3),
+              DataPoint(start + 3.seconds, Value.Undefined),
+              DataPoint(start + 4.seconds, 5)
+            )
+          )
+        )
+
+        assert(t0.get(start - 1.seconds) == None)
+        assert(t0.get(start) == Some(DataPoint(start, 1)))
+        assert(t0.get(start + 1.second) == None)
+        assert(
+          t0.get(start + 2.seconds) == Some(DataPoint(start + 2.seconds, 3))
+        )
+        assert(t0.get(start + 3.seconds) == None)
+        assert(
+          t0.get(start + 4.seconds) == Some(DataPoint(start + 4.seconds, 5))
+        )
+        assert(t0.get(start + 5.seconds) == None)
+
+      }
+
+    }
+
+    test(s"$label#trims undefined values at start and end") {
+      Time.withCurrentTimeFrozen { _ =>
+        val interval = 1.second
+        val start = Time.now.floor(interval) - 5.seconds
+
+        val t0: TimeSeries = ts(
+          TimeSeriesBehaviors.Input(
+            interval,
+            Array(
+              DataPoint(start, Value.Undefined),
+              DataPoint(start + 1.second, Value.Undefined),
+              DataPoint(start + 2.seconds, 3),
+              DataPoint(start + 3.seconds, Value.Undefined),
+              DataPoint(start + 4.seconds, 5),
+              DataPoint(start + 5.seconds, Value.Undefined)
+            )
+          )
+        )
+
+        assert(t0.start == start + 2.seconds)
+        assert(t0.end == start + 4.seconds)
+        assert(t0.size == 2)
+
+        assert(t0.get(start - 1.seconds) == None)
+        assert(t0.get(start) == None)
+        assert(t0.get(start + 1.second) == None)
+        assert(
+          t0.get(start + 2.seconds) == Some(DataPoint(start + 2.seconds, 3))
+        )
+        assert(t0.get(start + 3.seconds) == None)
+        assert(
+          t0.get(start + 4.seconds) == Some(DataPoint(start + 4.seconds, 5))
+        )
+        assert(t0.get(start + 5.seconds) == None)
+
+        assert(
+          t0.iterator.sameElements(
+            Iterable(
+              DataPoint(start + 2.seconds, 3),
+              DataPoint(start + 4.seconds, 5)
+            )
+          )
+        )
+
       }
 
     }
