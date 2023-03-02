@@ -1,6 +1,7 @@
 package dev.enbnt.timeseries.common
 
 import com.twitter.util.Time
+import scala.collection.Searching.SearchResult
 
 /**
  * A [[Seekable]] represents an indexable [[TimeSeriesLike]], which can be used
@@ -10,12 +11,15 @@ import com.twitter.util.Time
 private[timeseries] trait Seekable extends TimeSeriesLike {
 
   /**
-   * Retrieve the index which corresponds to the associated [[Time time]].
+   * Search for an index that corresponds to the given [[Time time]].
    * @param time
    *   The time to search for.
    * @return
-   *   The index associated with the given time, if it is found.
+   *   The [[SearchResult]] associated with the given time.
    */
-  def indexAt(time: Time): Int
+  def indexAt(time: Time): SearchResult
+
+  /** Return the [[DataPoint]] defined at the given index */
+  def apply(idx: Int): DataPoint
 
 }
