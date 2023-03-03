@@ -133,17 +133,15 @@ object DenseTimeSeries {
 
     val ar = Array.fill[Value](size)(Value.Undefined)
 
-    var definedCount = 0
     trimmed.foreach { dp =>
       if (dp.value != Value.Undefined) {
         val idx =
           (start.until(dp.time).inNanoseconds / interval.inNanoseconds).toInt
         ar(idx) = dp.value
-        definedCount += 1
       }
     }
 
-    new DenseTimeSeries(interval, start, ar, size - definedCount)
+    new DenseTimeSeries(interval, start, ar)
   }
 
 }
@@ -151,15 +149,14 @@ object DenseTimeSeries {
 private[timeseries] final class DenseTimeSeries private (
   val interval: Duration,
   val start: Time,
-  values: IndexedSeq[Value],
-  undefinedCount: Int
+  values: IndexedSeq[Value]
 ) extends TimeSeries
     with Seekable
     with IndexedSeq[DataPoint] { self =>
 
   override def apply(i: Int): DataPoint = DataPoint(timeAt(i), values(i))
 
-  override def length: Int = values.size - undefinedCount
+  override def length: Int = values.length
 
   /**
    * Retrieve the index which corresponds to the associated [[Time time]].
@@ -175,7 +172,8 @@ private[timeseries] final class DenseTimeSeries private (
       case t if t > end   => Searching.InsertionPoint(size)
       case _ =>
         val idx = ((time - start).inNanoseconds / interval.inNanoseconds).toInt
-        Searching.Found(idx)
+        if (values(idx) == Value.Undefined) Searching.InsertionPoint(idx)
+        else Searching.Found(idx)
     }
 
   }
@@ -196,5 +194,7 @@ private[timeseries] final class DenseTimeSeries private (
       def apply(i: Int): DataPoint = data(i)
     }
   }
+
+  override def iterator: Iterator[DataPoint] = view.iterator
 
 }
