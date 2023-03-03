@@ -13,8 +13,10 @@ trait TimeSeriesLike extends Iterable[DataPoint] {
   override def equals(obj: Any): Boolean = obj match {
     case ts: TimeSeriesLike =>
       this.eq(ts) ||
-      (this.interval == ts.interval && this.start == ts.start && this.end == ts.end && this.iterator
-        .sameElements(ts))
+      (this.interval == ts.interval
+        && this.start == ts.start
+        && this.end == ts.end
+        && iterator.sameElements(ts.iterator))
     case _ =>
       false
   }
