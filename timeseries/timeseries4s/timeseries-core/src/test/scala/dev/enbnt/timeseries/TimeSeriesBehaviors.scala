@@ -6,6 +6,7 @@ import com.twitter.util.Duration
 import com.twitter.util.Time
 import dev.enbnt.timeseries.common.DataPoint
 import dev.enbnt.timeseries.common.Value
+import dev.enbnt.timeseries.immutable.DenseTimeSeries
 import org.scalatest.funsuite.AnyFunSuite
 
 object TimeSeriesBehaviors {
@@ -243,7 +244,10 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
 
         assert(t0.start == start + 2.seconds)
         assert(t0.end == start + 4.seconds)
-        assert(t0.size == 2)
+
+        // size is not a public property, but we are verifying it here *for now*. only Dense will have a middle Undef
+        val expectedSize = if (t0.isInstanceOf[DenseTimeSeries]) 3 else 2
+        assert(t0.size == expectedSize)
 
         assert(t0.get(start - 1.seconds) == None)
         assert(t0.get(start) == None)
@@ -268,6 +272,309 @@ trait TimeSeriesBehaviors { this: AnyFunSuite =>
 
       }
 
+    }
+
+    test(s"$label#addition") {
+      val interval = 1.second
+      val start = Time.now.floor(interval) - 5.seconds
+
+      val t1: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, Value.Undefined),
+            DataPoint(start + 1.second, Value.Undefined),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, Value.Undefined),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, Value.Undefined)
+          )
+        )
+      )
+
+      val t2: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, 1),
+            DataPoint(start + 1.second, 2),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, 4),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, 6)
+          )
+        )
+      )
+
+      assert(
+        (t1 + t2) == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 6), DataPoint(start + 4.seconds, 10))
+        )
+      )
+
+      assert(
+        t1 + 5 == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 8), DataPoint(start + 4.seconds, 10))
+        )
+      )
+      assert(
+        t1 + 5L == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 8L),
+            DataPoint(start + 4.seconds, 10L)
+          )
+        )
+      )
+      assert(
+        t1 + 5f == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 8f),
+            DataPoint(start + 4.seconds, 10f)
+          )
+        )
+      )
+      assert(
+        t1 + 5d == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 8d),
+            DataPoint(start + 4.seconds, 10d)
+          )
+        )
+      )
+      assert(t1 + Value.Undefined == TimeSeries.empty())
+    }
+
+    test(s"$label#subtraction") {
+      val interval = 1.second
+      val start = Time.now.floor(interval) - 5.seconds
+
+      val t1: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, Value.Undefined),
+            DataPoint(start + 1.second, Value.Undefined),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, Value.Undefined),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, Value.Undefined)
+          )
+        )
+      )
+
+      val t2: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, 1),
+            DataPoint(start + 1.second, 2),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, 4),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, 6)
+          )
+        )
+      )
+
+      assert(
+        (t1 - t2) == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 0), DataPoint(start + 4.seconds, 0))
+        )
+      )
+
+      assert(
+        t1 - 2 == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 1), DataPoint(start + 4.seconds, 3))
+        )
+      )
+      assert(
+        t1 - 2L == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 1L),
+            DataPoint(start + 4.seconds, 3L)
+          )
+        )
+      )
+      assert(
+        t1 - 2f == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 1f),
+            DataPoint(start + 4.seconds, 3f)
+          )
+        )
+      )
+      assert(
+        t1 - 2d == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 1d),
+            DataPoint(start + 4.seconds, 3d)
+          )
+        )
+      )
+      assert(t1 - Value.Undefined == TimeSeries.empty())
+    }
+
+    test(s"$label#multiplication") {
+      val interval = 1.second
+      val start = Time.now.floor(interval) - 5.seconds
+
+      val t1: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, Value.Undefined),
+            DataPoint(start + 1.second, Value.Undefined),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, Value.Undefined),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, Value.Undefined)
+          )
+        )
+      )
+
+      val t2: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, 1),
+            DataPoint(start + 1.second, 2),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, 4),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, 6)
+          )
+        )
+      )
+
+      assert(
+        (t1 * t2) == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 9), DataPoint(start + 4.seconds, 25))
+        )
+      )
+
+      assert(
+        t1 * 5 == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 15),
+            DataPoint(start + 4.seconds, 25)
+          )
+        )
+      )
+      assert(
+        t1 * 5L == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 15L),
+            DataPoint(start + 4.seconds, 25L)
+          )
+        )
+      )
+      assert(
+        t1 * 5f == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 15f),
+            DataPoint(start + 4.seconds, 25f)
+          )
+        )
+      )
+      assert(
+        t1 * 5d == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 15d),
+            DataPoint(start + 4.seconds, 25d)
+          )
+        )
+      )
+      assert(t1 * Value.Undefined == TimeSeries.empty())
+    }
+
+    test(s"$label#division") {
+      val interval = 1.second
+      val start = Time.now.floor(interval) - 5.seconds
+
+      val t1: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, Value.Undefined),
+            DataPoint(start + 1.second, Value.Undefined),
+            DataPoint(start + 2.seconds, 6),
+            DataPoint(start + 3.seconds, Value.Undefined),
+            DataPoint(start + 4.seconds, 15),
+            DataPoint(start + 5.seconds, Value.Undefined)
+          )
+        )
+      )
+
+      val t2: TimeSeries = ts(
+        TimeSeriesBehaviors.Input(
+          interval,
+          Array(
+            DataPoint(start, 1),
+            DataPoint(start + 1.second, 2),
+            DataPoint(start + 2.seconds, 3),
+            DataPoint(start + 3.seconds, 4),
+            DataPoint(start + 4.seconds, 5),
+            DataPoint(start + 5.seconds, 6)
+          )
+        )
+      )
+
+      assert(
+        (t1 / t2) == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 2), DataPoint(start + 4.seconds, 3))
+        )
+      )
+
+      assert(
+        t1 / 3 == TimeSeries(
+          interval,
+          Seq(DataPoint(start + 2.seconds, 2), DataPoint(start + 4.seconds, 5))
+        )
+      )
+      assert(
+        t1 / 3L == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 2L),
+            DataPoint(start + 4.seconds, 5L)
+          )
+        )
+      )
+      assert(
+        t1 / 3f == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 2f),
+            DataPoint(start + 4.seconds, 5f)
+          )
+        )
+      )
+      assert(
+        t1 / 3d == TimeSeries(
+          interval,
+          Seq(
+            DataPoint(start + 2.seconds, 2d),
+            DataPoint(start + 4.seconds, 5d)
+          )
+        )
+      )
+      assert(t1 / Value.Undefined == TimeSeries.empty())
     }
 
   }

@@ -18,10 +18,10 @@ private[timeseries] object DataPoint {
 }
 
 /**
- * A simple [[Time]] and [[Double value]] pairing.
+ * A simple [[Time]] and [[Value]] pairing.
  *
  * @param time
- *   The time at which the value was recorded
+ *   The time at which the [[value]] was recorded
  * @param value
  *   The measured value of that data associated with the given [[time]]
  */
