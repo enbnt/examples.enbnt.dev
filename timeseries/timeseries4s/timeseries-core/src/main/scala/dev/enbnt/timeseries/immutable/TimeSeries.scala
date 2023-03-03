@@ -93,9 +93,9 @@ private[timeseries] final class SparseTimeSeries private (
   val interval: Duration,
   times: IndexedSeq[Time],
   values: IndexedSeq[Value]
-) extends TimeSeries
-    with Seekable
-    with IndexedSeq[DataPoint] { self =>
+) extends IndexedSeq[DataPoint]
+    with TimeSeries
+    with Seekable { self =>
 
   override def start: Time = times.head
   override def end: Time = times.last
@@ -150,9 +150,9 @@ private[timeseries] final class DenseTimeSeries private (
   val interval: Duration,
   val start: Time,
   values: IndexedSeq[Value]
-) extends TimeSeries
-    with Seekable
-    with IndexedSeq[DataPoint] { self =>
+) extends IndexedSeq[DataPoint]
+    with TimeSeries
+    with Seekable { self =>
 
   override def apply(i: Int): DataPoint = DataPoint(timeAt(i), values(i))
 
@@ -196,5 +196,7 @@ private[timeseries] final class DenseTimeSeries private (
   }
 
   override def iterator: Iterator[DataPoint] = view.iterator
+
+  override def className = "DenseTimeSeries"
 
 }
