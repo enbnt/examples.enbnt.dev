@@ -61,6 +61,8 @@ import scala.reflect.ClassTag
  *   The starting offset of the read index
  * @param writeIdx
  *   The starting offset of the write index
+ * @param count
+ *   The number of elements present within the buffer.
  * @tparam T
  *   The type of elements of contained within the buffer
  */
@@ -68,7 +70,8 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
   val capacity: Int,
   elems: Array[T],
   var readIdx: Int,
-  var writeIdx: Int
+  var writeIdx: Int,
+  var count: Int
 ) extends Iterable[T]
     with IterableOps[T, CircularBuffer, CircularBuffer[T]]
     with IterableFactoryDefaults[T, CircularBuffer]
@@ -80,10 +83,13 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
     s"CircularBuffer capacity must be > 0, but received '$capacity'"
   )
 
-  private[this] def count = math.min(writeIdx - readIdx + 1, capacity)
-
-  def this(capacity: Int) =
-    this(capacity, elems = Array.ofDim[T](capacity), readIdx = 0, writeIdx = -1)
+  def this(capacity: Int) = this(
+    capacity,
+    elems = Array.ofDim[T](capacity),
+    readIdx = 0,
+    writeIdx = 0,
+    count = 0
+  )
 
   /**
    * Consume the value at the current read index, modifying the state of the
@@ -94,8 +100,9 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
   def read(): T = {
     if (isEmpty)
       throw new IllegalStateException("Cannot read ahead of written value")
-    val v = elems(readIdx % capacity)
-    readIdx += 1
+    val v = elems(readIdx)
+    readIdx = incr(readIdx)
+    count -= 1
     v
   }
 
@@ -120,7 +127,8 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
       throw new IllegalStateException(
         s"Read offset '$offset' was >= buffer size of '$size'"
       )
-    elems((readIdx + offset) % capacity)
+    val idx = incr(readIdx, offset)
+    elems(idx)
   }
 
   /**
@@ -128,19 +136,13 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
    * buffer.
    */
   def write(value: T): Unit = {
-    writeIdx += 1
-    elems(writeIdx % capacity) = value
-    if (writeIdx - readIdx == capacity) {
-      readIdx += 1
+    elems(writeIdx) = value
+    writeIdx = incr(writeIdx)
+    count += 1
+    if (count > capacity) {
+      readIdx = incr(writeIdx)
+      count -= 1
     }
-  }
-
-  def write(offset: Int, value: T): Unit = {
-    if (offset >= size)
-      throw new IllegalStateException(
-        "Cannot write to an offset that hasn't been written to"
-      )
-    elems((readIdx + offset) % capacity) = value
   }
 
   /**
@@ -153,6 +155,10 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
   def write(values: T*): Unit = {
     values.foreach(write)
   }
+
+  // Increment an index by a specified amount, accounting for loops in the buffer space
+  private[this] def incr(idx: Int, amount: Int = 1): Int =
+    Math.abs((idx + amount) % capacity)
 
   /**
    * @inheritdoc
@@ -203,7 +209,8 @@ private[timeseries] class CircularBuffer[T: ClassTag] private (
       capacity,
       elems = newElems,
       readIdx = self.readIdx,
-      writeIdx = self.writeIdx
+      writeIdx = self.writeIdx,
+      count = count
     )
     val ret = cb.asInstanceOf[CircularBuffer[B]]
     ret.write(elem)

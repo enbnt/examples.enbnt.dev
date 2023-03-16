@@ -3,7 +3,6 @@ package dev.enbnt.timeseries.mutable
 import com.twitter.util.Duration
 import com.twitter.util.Time
 import dev.enbnt.timeseries.common.DataPoint
-import dev.enbnt.timeseries.common.DataPointOps._
 import dev.enbnt.timeseries.common.Seekable
 import dev.enbnt.timeseries.common.TimeSeriesLike
 import dev.enbnt.timeseries.common.Value
@@ -22,14 +21,7 @@ final class CircularBufferTimeSeries(
     with TimeSeries
     with Seekable { self =>
 
-  override def append(dp: DataPoint): Unit = lastOption match {
-    case Some(ldp) if dp.time == ldp.time => // we will sum the values
-      val dp2 = dp + ldp
-      if (dp2.value != Value.Undefined) write(size - 1, dp2)
-    case Some(ldp) if dp.time < ldp.time =>
-      () // ignore the write, it's too late
-    case _ => write(dp)
-  }
+  override def append(dp: DataPoint): Unit = write(dp)
 
   override def write(dp: DataPoint): Unit =
     if (dp.value != Value.Undefined) super.write(dp)
@@ -47,6 +39,4 @@ final class CircularBufferTimeSeries(
   override def indexAt(time: Time): Searching.SearchResult =
     this.toIndexedSeq.search(DataPoint(time, 0))(DataPoint.timeOrdering)
 
-  /** @inheritdoc */
-  override def className = "CircularBufferTimeSeries"
 }
