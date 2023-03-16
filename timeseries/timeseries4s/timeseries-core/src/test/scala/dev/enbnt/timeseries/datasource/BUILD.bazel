@@ -1,0 +1,14 @@
+scala_test(
+    name = "store",
+    srcs = glob(["*.scala"]),
+    deps = [
+        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries",
+        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries/immutable",
+        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries/mutable",
+        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries/store",
+        "@maven//:com_twitter_util_core_2_13",
+        "@maven//:com_twitter_util_slf4j_api_2_13",
+        "@maven//:org_slf4j_slf4j_api",
+        "@testJars//:com_twitter_inject_core_2_13_tests",
+    ],
+)
