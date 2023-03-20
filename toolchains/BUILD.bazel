@@ -2,7 +2,9 @@ load("@io_bazel_rules_scala//scala:scala.bzl", "setup_scala_toolchain")
 
 setup_scala_toolchain(
     name = "my_scala_toolchain",
-    dependency_tracking_unused_deps_patterns = ["-@maven//:com_twitter_util_slf4j_api_2_13"],
+    dependency_tracking_unused_deps_patterns = [
+        "-@maven//:com_twitter_util_slf4j_api_2_13",
+    ],
     scala_compile_classpath = [
         "@maven//:org_scala_lang_scala_compiler",
         "@maven//:org_scala_lang_scala_library",
@@ -26,6 +28,8 @@ setup_scala_toolchain(
         "-unchecked",
         "-Ywarn-unused:imports",  # Warn if an import selector is not referenced.
         "-Ywarn-unused:privates",  # Warn if a private member is unused.
+        "-Wconf:cat=deprecation&site=io.bazel.rules_scala.jmh_support.*:s", # suppress jmh warnings
+        "-Wconf:cat=unused&site=io.bazel.rules_scala.jmh_support.*:s", # suppress jmh warnings
     ],
     strict_deps_mode = "error",
     unused_dependency_checker_mode = "error",

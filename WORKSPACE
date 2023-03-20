@@ -105,6 +105,11 @@ rules_proto_toolchains()
 # Register a custom, local tool chain
 register_toolchains("//toolchains:my_scala_toolchain")
 
+# make jmh benchmark definitions available
+load("@io_bazel_rules_scala//jmh:jmh.bzl", "jmh_repositories")
+
+jmh_repositories()
+
 # optional: setup ScalaTest toolchain and dependencies
 load("@io_bazel_rules_scala//testing:scalatest.bzl", "scalatest_repositories", "scalatest_toolchain")
 
