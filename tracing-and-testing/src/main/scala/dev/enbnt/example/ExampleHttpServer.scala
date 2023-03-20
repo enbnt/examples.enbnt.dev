@@ -28,5 +28,6 @@ class ExampleHttpServer extends HttpServer {
       .filter[HttpNackFilter[Request]]
       .add[ExampleController]
       .add[LifecycleController]
+    ()
   }
 }

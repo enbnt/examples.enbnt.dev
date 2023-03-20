@@ -23,10 +23,10 @@ sealed trait Value extends Any {
 
 object Value {
   implicit val ordering: Ordering[Value] = Ordering.by {
-    case FloatVal(v)  => v
+    case FloatVal(v)  => v.toDouble
     case DoubleVal(v) => v
-    case LongVal(v)   => v
-    case IntVal(v)    => v
+    case LongVal(v)   => v.toDouble
+    case IntVal(v)    => v.toDouble
     case Undefined    => Double.NaN
   }
 
