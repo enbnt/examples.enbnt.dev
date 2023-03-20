@@ -2,7 +2,6 @@ scala_test(
     name = "common",
     srcs = glob(["*.scala"]),
     deps = [
-        "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries",
         "//timeseries/timeseries4s/timeseries-core/src/main/scala/dev/enbnt/timeseries/common",
         "@maven//:com_twitter_util_core_2_13",
         "@maven//:com_twitter_util_slf4j_api_2_13",

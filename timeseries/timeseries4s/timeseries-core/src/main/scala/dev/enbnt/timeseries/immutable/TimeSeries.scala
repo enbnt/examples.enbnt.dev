@@ -10,6 +10,7 @@ import scala.collection.IndexedSeqOps
 import scala.collection.IndexedSeqView
 import scala.collection.Searching
 import scala.collection.Searching.SearchResult
+import scala.collection.immutable.ArraySeq
 
 sealed trait TimeSeries extends TimeSeriesLike
 
@@ -141,7 +142,7 @@ object DenseTimeSeries {
       }
     }
 
-    new DenseTimeSeries(interval, start, ar)
+    new DenseTimeSeries(interval, start, ArraySeq.unsafeWrapArray(ar))
   }
 
 }
